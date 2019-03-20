@@ -171,8 +171,12 @@ class ProcessTestApp(ProcessApp):
         try:
             os._exit(future.result())
         except Exception as e:
-            self.log.error(str(e))
-            os._exit(1)
+            self.log.debug('>>>')
+            self.log.debug(str(e))
+            try:
+                os._exit(1)
+            finally:
+                pass
 
 
 jest_aliases = dict(base_aliases)
@@ -221,6 +225,7 @@ class JestApp(ProcessTestApp):
         terminalsAvailable = self.web_app.settings['terminals_available']
         debug = self.log.level == logging.DEBUG
 
+        self.log.debug('>>> 1')
         # find jest
         target = osp.join('node_modules', 'jest', 'bin', 'jest.js')
         jest = ''
@@ -232,6 +237,8 @@ class JestApp(ProcessTestApp):
             cwd = osp.dirname(cwd)
         if not jest:
             raise RuntimeError('jest not found!')
+
+        self.log.debug('>>> 2')
 
         cmd = ['node']
         if self.coverage:
@@ -245,28 +252,40 @@ class JestApp(ProcessTestApp):
         else:
             cmd += [jest]
 
+        self.log.debug('>>> 3')
+
         if self.testPathPattern:
             cmd += ['--testPathPattern', self.testPathPattern]
 
         if self.testNamePattern:
             cmd += ['--testNamePattern', self.testNamePattern]
 
+        self.log.debug('>>> 4')
+
         cmd += ['--runInBand']
 
         if self.log_level > logging.INFO:
             cmd += ['--silent']
+
+        self.log.debug('>>> 5')
 
         config = dict(baseUrl=self.connection_url,
                       terminalsAvailable=str(terminalsAvailable),
                       token=self.token)
         config.update(**self.test_config)
 
+        self.log.debug('>>> 6')
+
         td = tempfile.mkdtemp()
         atexit.register(lambda: shutil.rmtree(td, True))
+
+        self.log.debug('>>> 7')
 
         config_path = os.path.join(td, 'config.json')
         with open(config_path, 'w') as fid:
             json.dump(config, fid)
+
+        self.log.debug('>>> 8')
 
         env = os.environ.copy()
         env['JUPYTER_CONFIG_DATA'] = config_path
