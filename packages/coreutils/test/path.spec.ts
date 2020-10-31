@@ -68,6 +68,12 @@ describe('@jupyterlab/coreutils', () => {
         const path = PathExt.resolve('var/src', '../', 'file/');
         expect(path.indexOf('var/file')).not.toBe(-1);
       });
+
+      it('should resolve a sequence of path including empty value to an absolute path on the server', () => {
+        const path = PathExt.resolve('/', '', '/file');
+        console.log('>>> path ==> ' + path);
+        expect(path.indexOf('file')).not.toBe(-1);
+      });
     });
 
     describe('.relative()', () => {
